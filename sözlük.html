@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Çince - Türkçe Sözlük</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 30px; background-color: #f4f4f9; }
+        .form-container { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        input { padding: 8px; margin-right: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 8px 15px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #007bff; color: white; }
+    </style>
+</head>
+<body>
+
+    <h2>Çince Sözlük (Pinyin Sıralı)</h2>
+
+    <div class="form-container">
+        <input type="text" id="hanzi" placeholder="Hanzi (你好)">
+        <input type="text" id="pinyin" placeholder="Pinyin (Nǐ hǎo)">
+        <input type="text" id="turkce" placeholder="Türkçe Anlamı">
+        <button onclick="kelimeEkle()">Ekle</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Pinyin</th>
+                <th>Hanzi</th>
+                <th>Türkçe Anlamı</th>
+            </tr>
+        </thead>
+        <tbody id="sozlukTablosu"></tbody>
+    </table>
+
+    <script>
+        let sozluk = [
+            { hanzi: "你好", pinyin: "Nǐ hǎo", turkce: "Merhaba" },
+            { hanzi: "谢谢", pinyin: "Xièxie", turkce: "Teşekkürler" }
+        ];
+
+        function listeyiGuncelle() {
+            // Pinyin'e göre alfabetik sırala
+            sozluk.sort((a, b) => a.pinyin.localeCompare(b.pinyin, 'en', { sensitivity: 'base' }));
+
+            let tbody = document.getElementById("sozlukTablosu");
+            tbody.innerHTML = "";
+
+            sozluk.forEach(item => {
+                let tr = `<tr>
+                    <td><b>${item.pinyin}</b></td>
+                    <td>${item.hanzi}</td>
+                    <td>${item.turkce}</td>
+                </tr>`;
+                tbody.innerHTML += tr;
+            });
+        }
+
+        function kelimeEkle() {
+            let hanzi = document.getElementById("hanzi").value.trim();
+            let pinyin = document.getElementById("pinyin").value.trim();
+            let turkce = document.getElementById("turkce").value.trim();
+
+            if (!hanzi || !pinyin || !turkce) {
+                alert("Lütfen tüm alanları doldurun!");
+                return;
+            }
+
+            sozluk.push({ hanzi, pinyin, turkce });
+            
+            document.getElementById("hanzi").value = "";
+            document.getElementById("pinyin").value = "";
+            document.getElementById("turkce").value = "";
+
+            listeyiGuncelle();
+        }
+
+        // Sayfa açıldığında ilk listeyi bas
+        listeyiGuncelle();
+    </script>
+</body>
+</html>
