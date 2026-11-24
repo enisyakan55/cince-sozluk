@@ -78,7 +78,7 @@ body {
 }
 
 /* BUTONLAR BASILDIĞINDA YERİNDEN OYNAMAZ, SADECE RENK DEĞİŞTİRİR */
-button:active, .action-btn:active, .buy-btn:active, .exchange-btn:active, .user-pill:active {
+button:not(.cr-btn):active, .action-btn:active, .buy-btn:active, .exchange-btn:active, .user-pill:active {
     background-color: #e2e8f0 !important;
     color: #0f172a !important;
     transform: none !important;
@@ -371,6 +371,43 @@ h2 {
     border-radius: 10px;
 }
 
+/* KOLEKSİYON ARAMA ÇUBUĞU */
+.deck-search-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.deck-search-box {
+    width: 100%;
+    padding: 12px 40px 12px 14px !important;
+    background: #ffffff !important;
+    border: 2px solid var(--border-light) !important;
+    border-bottom: 3px solid #cbd5e1 !important;
+    border-radius: 14px !important;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-title);
+    outline: none;
+}
+
+.deck-search-box:focus {
+    border-color: var(--blue-main) !important;
+}
+
+.deck-clear-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 16px;
+    font-weight: 900;
+    cursor: pointer;
+    padding: 4px;
+}
+
 .deck-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -479,7 +516,7 @@ h2 {
     border: 2px solid var(--border-light);
     border-bottom: 4px solid #cbd5e1;
     border-radius: 20px;
-    padding: 30px 20px;
+    padding: 26px 16px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
 }
 
@@ -487,30 +524,70 @@ h2 {
     font-size: 14px;
     font-weight: 700;
     color: var(--text-body);
-    margin-bottom: 22px;
+    margin-bottom: 20px;
 }
 
-.battle-big-btn {
+/* CLASH ROYALE TARZI İKİLİ SAVAŞ BUTONLARI */
+.cr-battle-row {
+    display: flex;
+    gap: 12px;
     width: 100%;
-    padding: 20px 16px;
-    background: var(--green-main);
-    color: #ffffff;
-    border: none;
-    border-bottom: 5px solid var(--green-shadow);
-    border-radius: 16px;
-    font-size: 18px;
-    font-weight: 900;
-    cursor: pointer;
-    box-shadow: 0 8px 25px rgba(88, 204, 2, 0.35);
-    letter-spacing: 0.5px;
 }
 
-.battle-big-btn small {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
+.cr-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 10px;
+    border-radius: 16px;
+    border: 3px solid #1e293b;
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+    color: #ffffff;
+    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+}
+
+.cr-btn:active {
+    transform: translateY(4px);
+}
+
+.cr-btn-gold {
+    background: linear-gradient(180deg, #ffd43b 0%, #f59f00 100%);
+    box-shadow: 0 6px 0 #b45309, 0 8px 18px rgba(245, 159, 0, 0.35);
+}
+
+.cr-btn-gold:active {
+    box-shadow: 0 2px 0 #b45309;
+}
+
+.cr-btn-blue {
+    background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);
+    box-shadow: 0 6px 0 #075985, 0 8px 18px rgba(2, 132, 199, 0.35);
+}
+
+.cr-btn-blue:active {
+    box-shadow: 0 2px 0 #075985;
+}
+
+.cr-btn-icon {
+    font-size: 24px;
+    margin-bottom: 4px;
+}
+
+.cr-btn-text {
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: 0.6px;
+}
+
+.cr-btn-sub {
+    font-size: 11px;
+    font-weight: 800;
     opacity: 0.95;
-    margin-top: 4px;
+    margin-top: 2px;
+    text-shadow: none;
 }
 
 .gift-btn {

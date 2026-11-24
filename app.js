@@ -276,7 +276,7 @@ let currentProfile = { xp: 500, gems: 80, keys: 3, streak: 1, mastery: {}, frien
 let aiTimer = null;
 let dictionary = [];
 let categories = ["Genel"];
-let categoryColors = { "Genel": "#1971c2" };
+let categoryColors = { "Genel": localStorage.getItem('CAT_COLOR_Genel') || "#1971c2" };
 let categoryDocs = {};
 let selectedCategory = '';
 let selectedLetter = '';
@@ -418,7 +418,7 @@ function syncPublicProfile() {
         uid: currentUser.uid,
         shortId: shortId,
         name: currentUser.displayName?.split(' ')[0] || 'Oyuncu',
-        photo: currentUser.photoURL || 'https://via.placeholder.com/32',
+        photo: currentUser.photoURL || '[https://via.placeholder.com/32](https://via.placeholder.com/32)',
         wordCount: wordCount,
         rank: rank,
         streak: currentProfile.streak || 1,
@@ -508,7 +508,7 @@ async function renderFriendsList() {
                 row.style = "display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:2px solid #e2e8f0; padding:10px 12px; border-radius:12px;";
                 row.innerHTML = `
                     <div style="display:flex; align-items:center; gap:10px;">
-                        <img src="${f.photo || 'https://via.placeholder.com/32'}" style="width:32px; height:32px; border-radius:50%; border:2px solid #1cb0f6;">
+                        <img src="${f.photo || '[https://via.placeholder.com/32](https://via.placeholder.com/32)'}" style="width:32px; height:32px; border-radius:50%; border:2px solid #1cb0f6;">
                         <div>
                             <div style="font-size:13px; font-weight:900; color:#1e293b;">${f.name} <span style="font-size:11px; color:#64748b; font-family:monospace;">#${fId}</span></div>
                             <div style="font-size:11px; font-weight:700; color:#1cb0f6;">${f.rank || 'Başlangıç Seviyesi'} • ${f.wordCount || 0} Kelime • 🔥 ${f.streak || 1} Gün</div>
@@ -669,7 +669,7 @@ function addKeys(amount) {
     saveProfileUpdates({ keys: newKeys });
 }
 
-// ==================== KART SEVİYELERİ ====================
+// ==================== KART SEVİYELERİ & KOLEKSİYON ARAMA ====================
 function getTargetForLevel(lvl) {
     return Math.pow(2, lvl);
 }
@@ -697,18 +697,38 @@ function addCardMasteryPoint(hanziKey) {
     saveProfileUpdates({ mastery: mastery });
 }
 
+function clearDeckSearch() {
+    const inp = document.getElementById('deckSearchInput');
+    if (inp) inp.value = '';
+    renderDeckCards();
+}
+
 function renderDeckCards() {
     const grid = document.getElementById('deckGrid');
     const countSpan = document.getElementById('deckTotalCardsCount');
     if (!grid) return;
     grid.innerHTML = '';
 
+    const searchInput = document.getElementById('deckSearchInput');
+    const clearBtn = document.getElementById('clearDeckSearchBtn');
+    const q = (searchInput?.value || '').trim().toLowerCase();
+    if (clearBtn) clearBtn.style.display = q ? 'block' : 'none';
+
     const displayDict = (!currentUser && dictionary.length === 0) ? HSK_POOL.slice(0, 8) : dictionary;
-    const pool = selectedCategory ? displayDict.filter(w => (w.kategori || 'Genel') === selectedCategory) : displayDict;
+    let pool = selectedCategory ? displayDict.filter(w => (w.kategori || 'Genel') === selectedCategory) : displayDict;
+
+    if (q) {
+        pool = pool.filter(w =>
+            (w.hanzi || '').toLowerCase().includes(q) ||
+            (w.pinyin || '').toLowerCase().includes(q) ||
+            (w.turkish || '').toLowerCase().includes(q)
+        );
+    }
+
     if (countSpan) countSpan.innerText = `${pool.length} Kart`;
 
     if (pool.length === 0) {
-        grid.innerHTML = `<div style="grid-column: span 2; text-align:center; color:#64748b; padding:20px;">Henüz bu kategoride kelimen yok. Sandık açarak toplayabilirsin!</div>`;
+        grid.innerHTML = `<div style="grid-column: span 2; text-align:center; color:#64748b; padding:20px;">${q ? `"${q}" ile eşleşen kart bulunamadı.` : 'Henüz bu kategoride kelimen yok. Sandık açarak toplayabilirsin!'}</div>`;
         return;
     }
 
@@ -1049,7 +1069,7 @@ async function triggerAI(source) {
 
     try {
         if (source === 'turkish') {
-            const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=tr&tl=zh-CN&dt=t&q=${encodeURIComponent(val)}`;
+            const url = `[https://translate.googleapis.com/translate_a/single?client=gtx&sl=tr&tl=zh-CN&dt=t&q=$](https://translate.googleapis.com/translate_a/single?client=gtx&sl=tr&tl=zh-CN&dt=t&q=$){encodeURIComponent(val)}`;
             const res = await fetch(url);
             const data = await res.json();
             if (data && data[0]) {
@@ -1060,7 +1080,7 @@ async function triggerAI(source) {
                 }
             }
         } else if (source === 'hanzi') {
-            const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh-CN&tl=tr&dt=t&q=${encodeURIComponent(val)}`;
+            const url = `[https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh-CN&tl=tr&dt=t&q=$](https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh-CN&tl=tr&dt=t&q=$){encodeURIComponent(val)}`;
             const res = await fetch(url);
             const data = await res.json();
             if (data && data[0]) {
@@ -1070,7 +1090,7 @@ async function triggerAI(source) {
         } else if (source === 'pinyin') {
             const currentHz = hanziInput.value.trim();
             if (currentHz) {
-                const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh-CN&tl=tr&dt=t&q=${encodeURIComponent(currentHz)}`;
+                const url = `[https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh-CN&tl=tr&dt=t&q=$](https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh-CN&tl=tr&dt=t&q=$){encodeURIComponent(currentHz)}`;
                 const res = await fetch(url);
                 const data = await res.json();
                 if (data && data[0]) {
@@ -1288,7 +1308,7 @@ function filterByLetter(letter) {
     renderDictionary();
 }
 
-// ==================== KATEGORİLER ====================
+// ==================== KATEGORİLER (GELİŞMİŞ RENK & SİLME) ====================
 function getCategoryColor(catName) {
     if (!catName) catName = 'Genel';
     if (categoryColors[catName]) return categoryColors[catName];
@@ -1393,26 +1413,154 @@ function openManageCategoriesModal() {
     const listArea = document.getElementById('categoryEditListArea');
     if (!listArea) return;
     listArea.innerHTML = '';
+
     categories.forEach(cat => {
+        const currentColor = getCategoryColor(cat);
+        const safeId = encodeURIComponent(cat);
         const row = document.createElement('div');
-        row.style = "display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:2px solid #e2e8f0; padding:10px 14px; border-radius:12px; margin-bottom:8px; font-weight:800; color:#1e293b;";
-        row.innerHTML = `<span>${cat}</span>`;
+        row.style = "display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:2px solid #e2e8f0; padding:10px 12px; border-radius:12px; margin-bottom:8px; gap:8px;";
+
+        const deleteBtnHtml = cat !== 'Genel'
+            ? `<button class="row-btn" style="background:#fee2e2; color:#ef4444; padding:6px 10px;" onclick="deleteCategory('${cat.replace(/'/g, "\\'")}')">🗑️</button>`
+            : `<span style="font-size:11px; color:#94a3b8; font-weight:700; padding:0 4px;">Sabit</span>`;
+
+        row.innerHTML = `
+            <div style="display:flex; align-items:center; gap:8px; font-weight:800; color:#1e293b; overflow:hidden;">
+                <span style="width:12px; height:12px; border-radius:50%; background:${currentColor}; flex-shrink:0; display:inline-block;"></span>
+                <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${cat}</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+                <input type="color" id="editColor_${safeId}" value="${currentColor}" style="width:32px; height:30px; border:none; cursor:pointer; background:none; padding:0;">
+                <button class="row-btn" style="background:#dcfce7; color:#15803d; padding:6px 10px;" onclick="updateCategoryColor('${cat.replace(/'/g, "\\'")}')">Kaydet</button>
+                ${deleteBtnHtml}
+            </div>
+        `;
         listArea.appendChild(row);
     });
     document.getElementById('manageCategoriesModal').style.display = 'flex';
 }
+
+function updateCategoryColor(catName) {
+    const safeId = encodeURIComponent(catName);
+    const picker = document.getElementById(`editColor_${safeId}`);
+    if (!picker) return;
+    const newColor = picker.value;
+    categoryColors[catName] = newColor;
+
+    if (catName === "Genel") {
+        localStorage.setItem('CAT_COLOR_Genel', newColor);
+        renderCategoryBar();
+        renderDictionary();
+        renderDeckCards();
+        openManageCategoriesModal();
+        return;
+    }
+
+    if (!currentUser) return;
+    const docId = categoryDocs[catName];
+    if (docId) {
+        db.collection("users").doc(currentUser.uid).collection("kategoriler").doc(docId)
+            .update({ color: newColor })
+            .then(() => {
+                renderCategoryBar();
+                renderDictionary();
+                renderDeckCards();
+                openManageCategoriesModal();
+            });
+    }
+}
+
+async function deleteCategory(catName) {
+    if (!currentUser || catName === "Genel") return;
+    if (!confirm(`"${catName}" kategorisini silmek istediğine emin misin?\n(İçindeki kelimeler silinmez, otomatik olarak "Genel" kategorisine taşınır.)`)) return;
+
+    const docId = categoryDocs[catName];
+    try {
+        const wordsToMove = dictionary.filter(w => w.kategori === catName);
+        if (wordsToMove.length > 0) {
+            const batch = db.batch();
+            wordsToMove.forEach(w => {
+                batch.update(getUserWordsRef().doc(w.id), { kategori: 'Genel' });
+            });
+            await batch.commit();
+        }
+
+        if (docId) {
+            await db.collection("users").doc(currentUser.uid).collection("kategoriler").doc(docId).delete();
+        }
+        if (selectedCategory === catName) selectedCategory = '';
+        setTimeout(() => openManageCategoriesModal(), 250);
+    } catch (err) {
+        alert("Silme hatası: " + err.message);
+    }
+}
+
 function closeManageCategoriesModal() { document.getElementById('manageCategoriesModal').style.display = 'none'; }
 
-// ==================== FLASHCARD SRS ====================
-function openFlashcardModal() {
-    const pool = getFilteredWords();
-    if (!pool.length) { alert("Çalışılacak kelimen yok! Önce sözlüğe kelime ekle veya sandık aç."); return; }
+// ==================== FLASHCARD SRS (KARIŞIK & KATEGORİ SEÇMELİ) ====================
+function openFcCategoryPicker() {
+    const area = document.getElementById('fcCategoryListArea');
+    if (!area) return;
+    area.innerHTML = '';
+
+    const sourceList = (!currentUser && dictionary.length === 0) ? HSK_POOL.slice(0, 8) : dictionary;
+
+    categories.forEach(cat => {
+        const count = sourceList.filter(w => (w.kategori || 'Genel') === cat).length;
+        const color = getCategoryColor(cat);
+        const btn = document.createElement('button');
+        btn.style = `display:flex; justify-content:space-between; align-items:center; width:100%; padding:12px 14px; border-radius:14px; border:2px solid ${color}; border-bottom:4px solid ${color}; background:#ffffff; cursor:pointer; font-weight:800; color:#1e293b;`;
+        btn.innerHTML = `
+            <span style="display:flex; align-items:center; gap:8px;">
+                <span style="width:12px; height:12px; border-radius:50%; background:${color}; display:inline-block;"></span>
+                <span>${cat}</span>
+            </span>
+            <span style="background:${color}; color:#ffffff; padding:3px 10px; border-radius:999px; font-size:12px; font-weight:900;">${count} Kelime</span>
+        `;
+        btn.onclick = () => {
+            closeFcCategoryPicker();
+            openFlashcardModal(cat);
+        };
+        area.appendChild(btn);
+    });
+
+    document.getElementById('fcCategoryModal').style.display = 'flex';
+}
+
+function closeFcCategoryPicker() {
+    const modal = document.getElementById('fcCategoryModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function openFlashcardModal(mode = 'ALL') {
+    const sourceList = (!currentUser && dictionary.length === 0) ? HSK_POOL.slice(0, 8) : dictionary;
+    let pool = [];
+
+    if (mode === 'ALL') {
+        pool = [...sourceList];
+    } else {
+        pool = sourceList.filter(w => (w.kategori || 'Genel') === mode);
+    }
+
+    if (!pool.length) {
+        alert(mode === 'ALL'
+            ? "Çalışılacak kelimen yok! Önce sözlüğe kelime ekle veya sandık aç."
+            : `"${mode}" kategorisinde henüz kelime yok!`);
+        return;
+    }
+
+    const titleEl = document.getElementById('fcModalTitle');
+    if (titleEl) {
+        titleEl.innerText = mode === 'ALL' ? '⚔️ Karışık Savaş' : `📂 ${mode} Savaşı`;
+    }
+
     flashcardList = [...pool].sort(() => Math.random() - 0.5).slice(0, 20);
     currentFcIndex = 0;
     isFcFlipped = false;
     renderCurrentFlashcard();
     document.getElementById('flashcardModal').style.display = 'flex';
 }
+
 function closeFlashcardModal() { document.getElementById('flashcardModal').style.display = 'none'; }
 
 function renderCurrentFlashcard() {
@@ -1420,7 +1568,7 @@ function renderCurrentFlashcard() {
         addXP(25);
         addKeys(1);
         incrementQuest('flashcard', 1);
-        alert("Tebrikler! 20'lik Flashcard Arenasını tamamladın (+25 XP, +1 Anahtar)!");
+        alert("Tebrikler! Flashcard Arenasını tamamladın (+25 XP, +1 Anahtar)!");
         closeFlashcardModal();
         return;
     }
@@ -2009,7 +2157,7 @@ function applyUserState(user) {
         if (loggedInView) loggedInView.style.display = 'flex';
         
         const photoEl = document.getElementById('userPhoto');
-        if (photoEl) photoEl.src = user.photoURL || 'https://via.placeholder.com/32';
+        if (photoEl) photoEl.src = user.photoURL || '[https://via.placeholder.com/32](https://via.placeholder.com/32)';
         
         const nameDisp = document.getElementById('userNameDisplay');
         if (nameDisp) nameDisp.innerText = user.displayName?.split(' ')[0] || 'Oyuncu';
@@ -2028,7 +2176,7 @@ function applyUserState(user) {
         if (loggedInView) loggedInView.style.display = 'none';
         
         const photoEl = document.getElementById('userPhoto');
-        if (photoEl) photoEl.src = 'https://via.placeholder.com/32';
+        if (photoEl) photoEl.src = '[https://via.placeholder.com/32](https://via.placeholder.com/32)';
         
         const nameDisp = document.getElementById('userNameDisplay');
         if (nameDisp) nameDisp.innerText = 'Misafir';
