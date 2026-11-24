@@ -697,13 +697,44 @@ input[type="text"]:focus, select:focus {
     cursor: pointer;
 }
 
+.category-box {
+    margin-top: 4px;
+    width: 100%;
+    overflow: hidden;
+}
+
 .cat-pills {
     display: flex;
+    flex-wrap: nowrap;
+    gap: 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+    padding-bottom: 6px;
+    scrollbar-width: none;
+    width: 100%;
+}
+.cat-pills::-webkit-scrollbar { display: none; }
+
+.cat-pill {
+    flex: 0 0 auto;
+    padding: 7px 14px;
+    background: #ffffff;
+    border: 2px solid var(--border-light);
+    border-bottom: 3px solid #cbd5e1;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--text-body);
+    cursor: pointer;
+    white-space: nowrap;
+}    display: flex;
     gap: 8px;
     overflow-x: auto;
     padding-bottom: 4px;
     scrollbar-width: none;
-}
+
 .cat-pills::-webkit-scrollbar { display: none; }
 
 .cat-pill {
