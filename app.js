@@ -1,4 +1,3 @@
-// HSK KELİME HAVUZU (TAM 250 KELİME - HSK 1 & HSK 2)
 const HSK_POOL = [
     { hanzi: "你好", pinyin: "nǐ hǎo", turkish: "merhaba" },
     { hanzi: "谢谢", pinyin: "xièxie", turkish: "teşekkürler" },
@@ -259,7 +258,7 @@ const PRESET_COLORS = [
     "#2563eb", "#4f46e5", "#6366f1", "#8b5cf6", "#a855f7", "#d946ef",
     "#ec4899", "#f43f5e", "#78716c", "#64748b", "#334155", "#1e293b"
 ];
-// FIREBASE YAPILANDIRMASI
+
 const firebaseConfig = {
     apiKey: "AIzaSyCwezLhpEGqWSHgpfBqBax8pnRUu9SdExg",
     authDomain: "sozluk2.firebaseapp.com",
@@ -298,7 +297,6 @@ let selectedHanzisArray = [];
 let currentExampleData = null;
 let discoveryWordsList = [];
 
-// ==================== SES & SES SEVİYESİ KONTROLLERİ ====================
 window.currentSpeechRate = 1.0;
 window.currentSpeechVolume = 1.0;
 let bgmAudio = null;
@@ -349,7 +347,6 @@ function playSuccessTone() {
     }
 }
 
-// ==================== 5 EKRAN GEZİNME ====================
 function goToScreen(index) {
     const viewport = document.getElementById('screensViewport');
     if (!viewport) return;
@@ -370,7 +367,6 @@ document.getElementById('screensViewport')?.addEventListener('scroll', () => {
     });
 });
 
-// ==================== KULLANICI ID & ARKADAŞ SİSTEMİ ====================
 function getMyShortId() {
     if (currentUser && currentUser.uid) {
         return currentUser.uid.substring(0, 9).toUpperCase();
@@ -422,7 +418,7 @@ function syncPublicProfile() {
         uid: currentUser.uid,
         shortId: shortId,
         name: currentUser.displayName?.split(' ')[0] || 'Oyuncu',
-        photo: currentUser.photoURL || '[https://via.placeholder.com/32](https://via.placeholder.com/32)',
+        photo: currentUser.photoURL || 'https://via.placeholder.com/32',
         wordCount: wordCount,
         rank: rank,
         streak: currentProfile.streak || 1,
@@ -512,7 +508,7 @@ async function renderFriendsList() {
                 row.style = "display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:2px solid #e2e8f0; padding:10px 12px; border-radius:12px;";
                 row.innerHTML = `
                     <div style="display:flex; align-items:center; gap:10px;">
-                        <img src="${f.photo || '[https://via.placeholder.com/32](https://via.placeholder.com/32)'}" style="width:32px; height:32px; border-radius:50%; border:2px solid #1cb0f6;">
+                        <img src="${f.photo || 'https://via.placeholder.com/32'}" style="width:32px; height:32px; border-radius:50%; border:2px solid #1cb0f6;">
                         <div>
                             <div style="font-size:13px; font-weight:900; color:#1e293b;">${f.name} <span style="font-size:11px; color:#64748b; font-family:monospace;">#${fId}</span></div>
                             <div style="font-size:11px; font-weight:700; color:#1cb0f6;">${f.rank || 'Başlangıç Seviyesi'} • ${f.wordCount || 0} Kelime • 🔥 ${f.streak || 1} Gün</div>
@@ -528,7 +524,6 @@ async function renderFriendsList() {
     }
 }
 
-// ==================== BULUT PROFİL ====================
 function getTodayDateString() {
     const d = new Date();
     const year = d.getFullYear();
@@ -585,7 +580,6 @@ function closeWelcomeSparkModal() {
     goToScreen(0);
 }
 
-// ==================== RÜTBE & ARENA (KELİME SAYISI BAZLI) ====================
 function updateResourceUI() {
     const xBadge = document.getElementById('xpBadge');
     const gBadge = document.getElementById('gemBadge');
@@ -673,7 +667,6 @@ function addKeys(amount) {
     saveProfileUpdates({ keys: newKeys });
 }
 
-// ==================== KART SEVİYELERİ & KOLEKSİYON ARAMA ====================
 function getTargetForLevel(lvl) {
     return Math.pow(2, lvl);
 }
@@ -765,13 +758,12 @@ function renderDeckCards() {
     });
 }
 
-// ==================== GÜNLÜK GÖREV TAKİP ====================
 function getDailyQuestProgress() {
     const today = getTodayDateString();
     let data = {};
     try {
         data = JSON.parse(localStorage.getItem(`DAILY_QUESTS_${currentUser?.uid || 'guest'}`) || '{}');
-    } catch(e) { data = {}; }
+    } catch (e) { data = {}; }
 
     if (data.date !== today) {
         data = {
@@ -877,7 +869,6 @@ function claimDailyReward() {
     alert("Tebrikler! Tüm görevleri tamamlayarak sandık ödülünü kazandın: (+1 Anahtar, +15 Elmas, +40 XP)!");
 }
 
-// ==================== XP -> ELMAS DÖNÜŞÜM ====================
 function exchangeXPForGems() {
     const today = getTodayDateString();
     const lastExchange = localStorage.getItem(`LAST_EXCHANGE_${currentUser?.uid || 'guest'}`);
@@ -914,7 +905,6 @@ function checkExchangeButtonStatus() {
     }
 }
 
-// ==================== SANDIK MOTORU ====================
 function openChest(type, reqKeys, reqGems) {
     const keys = currentProfile.keys || 0;
     const gems = currentProfile.gems || 0;
@@ -929,7 +919,7 @@ function openChest(type, reqKeys, reqGems) {
     }
 
     const ownedHanzis = new Set(dictionary.map(w => w.hanzi.trim()));
-    let unownedPool = HSK_POOL.filter(w => !ownedHanzis.has(w.hanzi.trim()));
+    const unownedPool = HSK_POOL.filter(w => !ownedHanzis.has(w.hanzi.trim()));
 
     if (unownedPool.length === 0) {
         alert("Tebrikler! 250 kelimelik havuzdaki tüm kelimeleri zaten topladınız! Sandık açmanıza gerek kalmadı.");
@@ -963,8 +953,8 @@ function openChest(type, reqKeys, reqGems) {
     modal.style.display = 'flex';
 
     setTimeout(() => {
-        let drops = [];
-        let candidatePool = [...unownedPool];
+        const drops = [];
+        const candidatePool = [...unownedPool];
 
         for (let i = 0; i < count; i++) {
             if (candidatePool.length === 0) break;
@@ -995,19 +985,19 @@ function openChest(type, reqKeys, reqGems) {
         }
 
         drops.forEach(item => {
-            let div = document.createElement('div');
+            const div = document.createElement('div');
             div.className = 'chest-drop-item';
             div.style = "padding:8px; margin:4px 0; background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; font-weight:700;";
             div.innerHTML = `<strong style="font-size:16px; color:#1e293b;">${item.hanzi}</strong> <span style="color:#2563eb;">(${item.pinyin})</span> - <span style="color:#475569;">${item.turkish}</span>`;
             dropArea.appendChild(div);
         });
 
-        let rewardedXP = count * 10;
+        const rewardedXP = count * 10;
         addXP(rewardedXP);
         if (type === 'silver') addGems(5);
         if (type === 'magic') addGems(35);
 
-        let bonusDiv = document.createElement('div');
+        const bonusDiv = document.createElement('div');
         bonusDiv.className = 'chest-drop-item';
         bonusDiv.style = "padding:8px; margin-top:8px; background:#eff6ff; border:2px solid #3b82f6; border-radius:8px; font-weight:800; color:#1d4ed8;";
         bonusDiv.innerHTML = `KAZANILAN: +${rewardedXP} XP ${type === 'magic' ? '+35 Elmas' : (type === 'silver' ? '+5 Elmas' : '')}`;
@@ -1025,7 +1015,7 @@ function closeChestModal(e) {
     document.getElementById('chestModal').style.display = 'none';
 }
 
-// ==================== HIZLI & GÜVENLİ ÇEVİRİ MOTORU ====================
+// ==================== ÇEVİRİ MOTORU ====================
 function queueAI(source) {
     clearTimeout(aiTimer);
     if (source === 'hanzi') {
@@ -1044,7 +1034,10 @@ async function triggerAI(source) {
     const turkishInput = document.getElementById('turkish');
     const statusDiv = document.getElementById('aiStatus');
 
-    let val = source === 'turkish' ? turkishInput.value.trim() : (source === 'hanzi' ? hanziInput.value.trim() : pinyinInput.value.trim());
+    const val = source === 'turkish'
+        ? turkishInput.value.trim()
+        : (source === 'hanzi' ? hanziInput.value.trim() : pinyinInput.value.trim());
+
     if (!val) return;
 
     const localMatch = HSK_POOL.find(item => {
@@ -1073,31 +1066,25 @@ async function triggerAI(source) {
 
     try {
         if (source === 'turkish') {
-            const url = `[https://translate.googleapis.com/translate_a/single?client=gtx&sl=tr&tl=zh-CN&dt=t&q=$](https://translate.googleapis.com/translate_a/single?client=gtx&sl=tr&tl=zh-CN&dt=t&q=$){encodeURIComponent(val)}`;
+            const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=tr&tl=zh-CN&dt=t&q=${encodeURIComponent(val)}`;
             const res = await fetch(url);
             const data = await res.json();
-            if (data && data[0]) {
-                const hz = data[0].map(item => item[0]).filter(Boolean).join('');
+            if (data && Array.isArray(data[0])) {
+                const hz = data[0].map(item => item[0]).filter(Boolean).join('').trim();
                 if (hz) {
                     hanziInput.value = hz;
-                    if (window.pinyinPro) pinyinInput.value = window.pinyinPro.pinyin(hz, { toneType: 'symbol' });
+                    if (window.pinyinPro) {
+                        pinyinInput.value = window.pinyinPro.pinyin(hz, { toneType: 'symbol' });
+                    }
                 }
             }
-        } else if (source === 'hanzi') {
-            const url = `[https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh-CN&tl=tr&dt=t&q=$](https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh-CN&tl=tr&dt=t&q=$){encodeURIComponent(val)}`;
-            const res = await fetch(url);
-            const data = await res.json();
-            if (data && data[0]) {
-                const tr = data[0].map(item => item[0]).filter(Boolean).join(' ').trim();
-                if (tr) turkishInput.value = tr.toLowerCase();
-            }
-        } else if (source === 'pinyin') {
-            const currentHz = hanziInput.value.trim();
-            if (currentHz) {
-                const url = `[https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh-CN&tl=tr&dt=t&q=$](https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh-CN&tl=tr&dt=t&q=$){encodeURIComponent(currentHz)}`;
+        } else if (source === 'hanzi' || source === 'pinyin') {
+            const targetText = source === 'pinyin' ? (hanziInput.value.trim() || val) : val;
+            if (targetText) {
+                const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh-CN&tl=tr&dt=t&q=${encodeURIComponent(targetText)}`;
                 const res = await fetch(url);
                 const data = await res.json();
-                if (data && data[0]) {
+                if (data && Array.isArray(data[0])) {
                     const tr = data[0].map(item => item[0]).filter(Boolean).join(' ').trim();
                     if (tr) turkishInput.value = tr.toLowerCase();
                 }
@@ -1110,7 +1097,6 @@ async function triggerAI(source) {
     }
 }
 
-// ==================== BULUT KELİMELERİ ====================
 function loadCloudData() {
     const wordsRef = getUserWordsRef();
     if (!wordsRef) {
@@ -1153,7 +1139,7 @@ function getFilteredWords() {
     const query = (document.getElementById('searchQuery')?.value || '').trim().toLowerCase();
     const sourceList = (!currentUser && dictionary.length === 0) ? HSK_POOL.slice(0, 8) : dictionary;
     const list = [...sourceList].sort((a, b) => (a.pinyin || '').localeCompare(b.pinyin || ''));
-    
+
     return list.filter(item => {
         const p = (item.pinyin || '').toLowerCase();
         const h = (item.hanzi || '').toLowerCase();
@@ -1209,7 +1195,7 @@ function colorizePinyin(pinyinText) {
     };
     const marks = { 1: '¯', 2: 'ˊ', 3: 'ˇ', 4: 'ˋ' };
     let res = '';
-    for (let char of pinyinText) {
+    for (const char of pinyinText) {
         if (toneMap[char]) {
             const [base, tone] = toneMap[char];
             res += `${base}<span style="color:#f59e0b; font-weight:800;">${marks[tone]}</span>`;
@@ -1218,14 +1204,13 @@ function colorizePinyin(pinyinText) {
     return res;
 }
 
-// ==================== KELİME EKLE ====================
 function addWord() {
     if (!currentUser) { alert("Lütfen önce giriş yapın!"); goToScreen(4); return; }
     const hanzi = document.getElementById('hanzi').value.trim();
     const pinyin = document.getElementById('pinyin').value.trim();
     const turkish = document.getElementById('turkish').value.trim();
     const kategori = document.getElementById('wordCategory').value || 'Genel';
-    
+
     if (!hanzi) {
         alert("Lütfen Hanzi (Çince karakter) girin!");
         return;
@@ -1284,7 +1269,6 @@ function confirmMoveWord() {
     getUserWordsRef().doc(moveTargetWordId).update({ kategori: targetCat }).then(() => closeMoveModal());
 }
 
-// ==================== DİNAMİK ALFABE ÇUBUĞU ====================
 function renderAlphabetBar() {
     const alphaBar = document.getElementById('alphabetBar');
     if (!alphaBar) return;
@@ -1312,7 +1296,6 @@ function filterByLetter(letter) {
     renderDictionary();
 }
 
-// ==================== KATEGORİLER (GELİŞMİŞ RENK & SİLME) ====================
 function getCategoryColor(catName) {
     if (!catName) catName = 'Genel';
     if (categoryColors[catName]) return categoryColors[catName];
@@ -1380,7 +1363,8 @@ function renderCategoryBar() {
     newBtn.innerText = '+ Yeni';
     newBtn.onclick = openNewCategoryModal;
     bar.appendChild(newBtn);
-}    
+}
+
 function updateCategoryDropdowns() {
     const formSelect = document.getElementById('wordCategory');
     const moveSelect = document.getElementById('targetCategorySelect');
@@ -1425,7 +1409,7 @@ function openNewCategoryModal() {
         });
     }
     document.getElementById('newCategoryModal').style.display = 'flex';
-}    
+}
 function closeNewCategoryModal() { document.getElementById('newCategoryModal').style.display = 'none'; }
 
 function saveNewCategory() {
@@ -1515,7 +1499,7 @@ function updateCategoryColor(catName, directColor = null) {
             });
     }
 }
-    
+
 async function deleteCategory(catName) {
     if (!currentUser || catName === "Genel") return;
     if (!confirm(`"${catName}" kategorisini silmek istediğine emin misin?\n(İçindeki kelimeler silinmez, otomatik olarak "Genel" kategorisine taşınır.)`)) return;
@@ -1543,7 +1527,6 @@ async function deleteCategory(catName) {
 
 function closeManageCategoriesModal() { document.getElementById('manageCategoriesModal').style.display = 'none'; }
 
-// ==================== FLASHCARD SRS (KARIŞIK & KATEGORİ SEÇMELİ) ====================
 function openFcCategoryPicker() {
     const area = document.getElementById('fcCategoryListArea');
     if (!area) return;
@@ -1655,7 +1638,6 @@ function speakFlashcard() {
     speakChinese(text);
 }
 
-// ==================== HANZI WRITER & ÇOKLU KARAKTER ÇİZİMİ ====================
 function openModal(item) {
     document.getElementById('modalPinyin').innerHTML = colorizePinyin(item.pinyin);
     document.getElementById('modalTurkish').innerText = item.turkish;
@@ -1692,13 +1674,13 @@ function playSequentialAnimation(writers, index) {
 }
 function replayAnimation() { playSequentialAnimation(currentWriters, 0); }
 
-function startQuiz() { 
+function startQuiz() {
     if (!currentWriters || currentWriters.length === 0) return;
     currentQuizProgress = 0;
 
     currentWriters.forEach(w => {
         w.quiz({
-            onComplete: function() {
+            onComplete: function () {
                 currentQuizProgress++;
                 if (currentQuizProgress >= currentWriters.length) {
                     playSuccessTone();
@@ -1731,13 +1713,12 @@ async function fetchExampleSentence(hanziWord, turkishWord) {
     speakBtn.style.display = "inline-block";
 }
 
-function speakExampleSentence() { 
+function speakExampleSentence() {
     if (currentExampleData?.chinese) {
         speakChinese(currentExampleData.chinese);
     }
 }
 
-// ==================== GÜNÜN 5 KELİMESİ (TEKLİ & TOPLU KATEGORİ SEÇİMİ) ====================
 function checkDiscoveryButtonStatus() {
     const today = getTodayDateString();
     const lastClaim = localStorage.getItem(`LAST_DISCOVERY_CLAIM_${currentUser?.uid || 'guest'}`);
@@ -1766,14 +1747,14 @@ function openDiscoveryModal() {
     fetchDiscoveryWords();
 }
 
-function closeDiscoveryModal() { 
-    document.getElementById('discoveryModal').style.display = 'none'; 
+function closeDiscoveryModal() {
+    document.getElementById('discoveryModal').style.display = 'none';
 }
 
 function fetchDiscoveryWords() {
     const area = document.getElementById('discoveryListArea');
     area.innerHTML = '';
-    
+
     const ownedHanzis = new Set(dictionary.map(w => w.hanzi.trim()));
     discoveryWordsList = HSK_POOL.filter(w => !ownedHanzis.has(w.hanzi.trim())).slice(0, 5);
 
@@ -1881,10 +1862,10 @@ function addAllDiscoveryWords() {
         const docId = item.hanzi.trim();
         const ref = getUserWordsRef().doc(docId);
         batch.set(ref, {
-            hanzi: item.hanzi.trim(), 
-            pinyin: item.pinyin.trim(), 
+            hanzi: item.hanzi.trim(),
+            pinyin: item.pinyin.trim(),
             turkish: item.turkish.trim(),
-            kategori: chosenCat, 
+            kategori: chosenCat,
             ekleyen: currentUser.displayName?.split(' ')[0] || 'Ben',
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
@@ -1900,8 +1881,7 @@ function addAllDiscoveryWords() {
     });
 }
 
-// ==================== GELİŞMİŞ ADAPTİF KIRPMA & OCR ====================
-let cropState = {
+const cropState = {
     x: 0,
     y: 0,
     width: 120,
@@ -2015,7 +1995,7 @@ async function runCropAndOCR() {
     const area = document.getElementById('detectedWordsArea');
     const imgEl = document.getElementById('imagePreview');
     const container = document.getElementById('cropContainer');
-    
+
     area.innerHTML = '';
     stateText.innerText = 'Karakter optimize edilip taranıyor...';
 
@@ -2118,7 +2098,6 @@ function confirmSelectedHanzi() {
     triggerAI('hanzi');
 }
 
-// ==================== YARDIMCI VE AUTH ====================
 function handleSearch() { renderDictionary(); }
 function clearSearch() { document.getElementById('searchQuery').value = ''; renderDictionary(); }
 
@@ -2127,14 +2106,13 @@ function speakChinese(text) {
         window.speechSynthesis.cancel();
         const utt = new SpeechSynthesisUtterance(text);
         utt.lang = 'zh-CN';
-        utt.rate = window.currentSpeechRate || 1.0; 
+        utt.rate = window.currentSpeechRate || 1.0;
         utt.volume = window.currentSpeechVolume !== undefined ? window.currentSpeechVolume : 1.0;
         window.speechSynthesis.speak(utt);
         incrementQuest('listen', 1);
     }
 }
 
-// ==================== SES HIZI (TTS) KONTROLÜ ====================
 function changeSpeed(rate, element) {
     window.currentSpeechRate = rate;
     document.querySelectorAll('.speed-btn').forEach(btn => {
@@ -2143,10 +2121,9 @@ function changeSpeed(rate, element) {
     element.classList.add('active');
 }
 
-// ==================== ARKA PLAN MÜZİĞİ (BGM) ====================
 function toggleBGM() {
     const btn = document.getElementById('bgmToggleBtn');
-    
+
     if (!bgmAudio) {
         bgmAudio = new Audio('audio/ambient-loop.mp3');
         bgmAudio.loop = true;
@@ -2175,19 +2152,18 @@ function toggleBGM() {
     }
 }
 
-// ==================== GOOGLE GİRİŞİ ====================
-window.handleGoogleLogin = function() {
+window.handleGoogleLogin = function () {
     const provider = new firebase.auth.GoogleAuthProvider();
     auth.signInWithPopup(provider).then(result => {
         if (result && result.user) {
             applyUserState(result.user);
         }
-    }).catch(err => {
+    }).catch(() => {
         auth.signInWithRedirect(provider);
     });
 };
 
-window.handleLogout = function() {
+window.handleLogout = function () {
     auth.signOut().then(() => {
         applyUserState(null);
     });
@@ -2201,13 +2177,13 @@ function applyUserState(user) {
     if (user) {
         if (loggedOutView) loggedOutView.style.display = 'none';
         if (loggedInView) loggedInView.style.display = 'flex';
-        
+
         const photoEl = document.getElementById('userPhoto');
-        if (photoEl) photoEl.src = user.photoURL || '[https://via.placeholder.com/32](https://via.placeholder.com/32)';
-        
+        if (photoEl) photoEl.src = user.photoURL || 'https://via.placeholder.com/32';
+
         const nameDisp = document.getElementById('userNameDisplay');
         if (nameDisp) nameDisp.innerText = user.displayName?.split(' ')[0] || 'Oyuncu';
-        
+
         const nameFull = document.getElementById('userNameFull');
         if (nameFull) nameFull.innerText = user.displayName || user.email;
 
@@ -2220,15 +2196,17 @@ function applyUserState(user) {
     } else {
         if (loggedOutView) loggedOutView.style.display = 'block';
         if (loggedInView) loggedInView.style.display = 'none';
-        
+
         const photoEl = document.getElementById('userPhoto');
-        if (photoEl) photoEl.src = '[https://via.placeholder.com/32](https://via.placeholder.com/32)';
-        
+        if (photoEl) photoEl.src = 'https://via.placeholder.com/32';
+
         const nameDisp = document.getElementById('userNameDisplay');
         if (nameDisp) nameDisp.innerText = 'Misafir';
-        
+
         currentProfile = { xp: 500, gems: 80, keys: 3, streak: 1, mastery: {}, friends: [] };
         dictionary = [];
+        updateCategoryDropdowns();
+        renderCategoryBar();
         updateResourceUI();
         renderDictionary();
         renderDeckCards();
@@ -2253,7 +2231,9 @@ auth.onAuthStateChanged(user => {
 });
 
 window.addEventListener('DOMContentLoaded', () => {
-    goToScreen(2); // Pratik sekmesi ile başlar
+    updateCategoryDropdowns();
+    renderCategoryBar();
+    goToScreen(2);
     renderAlphabetBar();
     updateUserIdDisplay();
 });

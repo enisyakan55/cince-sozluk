@@ -3,7 +3,7 @@
     --bg-card: #ffffff;
     --bg-surface: #f8fafc;
     --border-light: #e2e8f0;
-    
+
     --green-main: #58cc02;
     --green-shadow: #46a302;
     --blue-main: #1cb0f6;
@@ -14,7 +14,7 @@
     --purple-shadow: #a855f7;
     --red-main: #ff4b4b;
     --red-shadow: #ea2b2b;
-    
+
     --text-title: #1e293b;
     --text-body: #475569;
     --text-muted: #94a3b8;
@@ -49,7 +49,6 @@ body {
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
 }
 
-/* ÜST OYUN BARI */
 .game-header {
     display: flex;
     justify-content: space-between;
@@ -77,7 +76,6 @@ body {
     transition: background-color 0.2s, color 0.2s;
 }
 
-/* BUTONLAR BASILDIĞINDA YERİNDEN OYNAMAZ, SADECE RENK DEĞİŞTİRİR */
 button:not(.cr-btn):active, .action-btn:active, .buy-btn:active, .exchange-btn:active, .user-pill:active {
     background-color: #e2e8f0 !important;
     color: #0f172a !important;
@@ -107,22 +105,21 @@ button:not(.cr-btn):active, .action-btn:active, .buy-btn:active, .exchange-btn:a
     color: #ffffff;
 }
 
-.res-item.xp { 
+.res-item.xp {
     background: var(--gold-main);
     border-bottom: 3px solid var(--gold-shadow);
 }
 
-.res-item.gems { 
+.res-item.gems {
     background: var(--green-main);
     border-bottom: 3px solid var(--green-shadow);
 }
 
-.res-item.keys { 
+.res-item.keys {
     background: var(--blue-main);
     border-bottom: 3px solid var(--blue-shadow);
 }
 
-/* SEKMELER */
 .screens-viewport {
     flex: 1;
     display: flex;
@@ -164,7 +161,6 @@ h2 {
     margin-top: 4px;
 }
 
-/* KARTLAR */
 .cr-card {
     background: #ffffff;
     border: 2px solid var(--border-light);
@@ -213,7 +209,6 @@ h2 {
     cursor: pointer;
 }
 
-/* GÖREVLER */
 .progress-track {
     width: 100%;
     height: 12px;
@@ -285,7 +280,6 @@ h2 {
     cursor: pointer;
 }
 
-/* SANDIK KARTLARI */
 .chest-grid {
     display: flex;
     flex-direction: column;
@@ -345,7 +339,6 @@ h2 {
     border-bottom-color: var(--green-shadow);
 }
 
-/* KOLEKSİYON */
 .page-header-row {
     display: flex;
     justify-content: space-between;
@@ -371,7 +364,6 @@ h2 {
     border-radius: 10px;
 }
 
-/* KOLEKSİYON ARAMA ÇUBUĞU */
 .deck-search-wrapper {
     position: relative;
     width: 100%;
@@ -483,7 +475,6 @@ h2 {
     margin-top: 4px;
 }
 
-/* SAVAŞ / MERKEZ */
 .arena-banner {
     display: flex;
     justify-content: space-between;
@@ -527,7 +518,6 @@ h2 {
     margin-bottom: 20px;
 }
 
-/* CLASH ROYALE TARZI İKİLİ SAVAŞ BUTONLARI */
 .cr-battle-row {
     display: flex;
     gap: 12px;
@@ -603,7 +593,6 @@ h2 {
     cursor: pointer;
 }
 
-/* FORM & SÖZLÜK */
 .form-group {
     display: flex;
     flex-direction: column;
@@ -672,6 +661,8 @@ input[type="text"]:focus, select:focus {
 
 .category-box {
     margin-top: 4px;
+    width: 100%;
+    overflow: hidden;
 }
 
 .cat-bar-header {
@@ -697,11 +688,6 @@ input[type="text"]:focus, select:focus {
     cursor: pointer;
 }
 
-.category-box {
-    margin-top: 4px;
-    width: 100%;
-    overflow: hidden;
-}
 .cat-pills {
     display: flex;
     flex-wrap: nowrap;
@@ -735,7 +721,6 @@ input[type="text"]:focus, select:focus {
     border-bottom-color: var(--blue-shadow);
 }
 
-/* SADELEŞTİRİLMİŞ ARAMA ÇUBUĞU */
 .search-wrapper {
     position: relative;
     display: flex;
@@ -787,7 +772,6 @@ input[type="text"]:focus, select:focus {
     border-color: var(--blue-main);
 }
 
-/* SÖZLÜK TABLOSU */
 table {
     width: 100%;
     border-collapse: separate;
@@ -853,7 +837,6 @@ td:last-child { border-right: 2px solid var(--border-light); border-radius: 0 12
     cursor: pointer;
 }
 
-/* PROFİL & AYARLAR PANELİ STİLLERİ */
 .profile-card {
     text-align: center;
 }
@@ -932,7 +915,6 @@ td:last-child { border-right: 2px solid var(--border-light); border-radius: 0 12
     color: #15803d;
 }
 
-/* SLIDER / SES DÜZEYİ ALANI */
 .settings-slider-row {
     display: flex;
     flex-direction: column;
@@ -1049,7 +1031,6 @@ td:last-child { border-right: 2px solid var(--border-light); border-radius: 0 12
     cursor: pointer;
 }
 
-/* ALT GEZİNME */
 .bottom-nav {
     position: fixed;
     bottom: 0;
@@ -1081,7 +1062,6 @@ td:last-child { border-right: 2px solid var(--border-light); border-radius: 0 12
     color: var(--blue-main);
 }
 
-/* MODAL KATMANI */
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -1126,7 +1106,6 @@ td:last-child { border-right: 2px solid var(--border-light); border-radius: 0 12
     cursor: pointer;
 }
 
-/* KELİME DETAY KARTI */
 .word-detail-card {
     display: flex;
     flex-direction: column;
@@ -1262,7 +1241,6 @@ td:last-child { border-right: 2px solid var(--border-light); border-radius: 0 12
     color: var(--text-body);
 }
 
-/* FLASHCARD MODAL */
 .fc-card {
     background: #f8fafc;
     border: 2px solid var(--border-light);
@@ -1327,7 +1305,6 @@ td:last-child { border-right: 2px solid var(--border-light); border-radius: 0 12
     font-weight: 900;
 }
 
-/* 24 RENKLİK KATEGORİ PALETİ */
 .color-palette-bar {
     display: grid;
     grid-template-columns: repeat(8, 1fr);

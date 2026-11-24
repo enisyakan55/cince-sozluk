@@ -2,83 +2,485 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Çince - Türkçe Sözlük</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 30px; background-color: #f4f4f9; }
-        .form-container { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        input { padding: 8px; margin-right: 10px; border: 1px solid #ccc; border-radius: 4px; }
-        button { padding: 8px 15px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        table { width: 100%; border-collapse: collapse; background: white; }
-        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
-        th { background-color: #007bff; color: white; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1cb0f6">
+    <title>Çince Sözlük & Arena</title>
+
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/jpeg" href="favicon.jpg?v=360">
+    <link rel="apple-touch-icon" href="favicon.jpg?v=360">
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
+    <script src="https://unpkg.com/pinyin-pro"></script>
 </head>
 <body>
 
-    <h2>Çince Sözlük (Pinyin Sıralı)</h2>
+<div class="app-wrapper">
+    <header class="game-header">
+        <div class="user-pill" id="userPill" onclick="goToScreen(4)">
+            <img id="userPhoto" class="user-avatar" src="https://via.placeholder.com/32" alt="Avatar">
+            <span id="userNameDisplay">Misafir</span>
+        </div>
 
-    <div class="form-container">
-        <input type="text" id="hanzi" placeholder="Hanzi (你好)">
-        <input type="text" id="pinyin" placeholder="Pinyin (Nǐ hǎo)">
-        <input type="text" id="turkce" placeholder="Türkçe Anlamı">
-        <button onclick="kelimeEkle()">Ekle</button>
+        <div class="resource-bar">
+            <div class="res-item xp" id="xpBadge">0 XP</div>
+            <div class="res-item gems" id="gemBadge">0 Elmas</div>
+            <div class="res-item keys" id="keyBadge">0 Anahtar</div>
+        </div>
+    </header>
+
+    <main class="screens-viewport" id="screensViewport">
+
+        <section class="screen-panel" id="screen-shop">
+            <div class="screen-content">
+                <h2>Mağaza & Kaynaklar</h2>
+
+                <div class="cr-card exchange-box">
+                    <div class="exchange-content">
+                        <div>
+                            <div class="card-subtitle">Simya Borsası (Günlük: 1/1)</div>
+                            <div class="card-desc">500 XP karşılığında 50 Yeşil Elmas kazanın.</div>
+                        </div>
+                        <button class="exchange-btn" id="btnExchangeXP" onclick="exchangeXPForGems()">
+                            Dönüştür
+                        </button>
+                    </div>
+                </div>
+
+                <div class="cr-card quest-box">
+                    <div class="card-header-flex">
+                        <span class="card-subtitle">Günlük Hedefler</span>
+                        <span class="quest-progress-txt" id="questProgressTxt">0 / 4 Tamamlandı</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill" id="questProgressFill" style="width: 0%;"></div>
+                    </div>
+
+                    <div class="quest-list" id="questList">
+                        <div class="quest-item" id="qCard1">
+                            <div>
+                                <strong>Kelime Ekleme (2 Adet)</strong>
+                                <small>Ödül: +10 XP</small>
+                            </div>
+                            <span class="quest-status" id="qStatus1">0 / 2</span>
+                        </div>
+                        <div class="quest-item" id="qCard2">
+                            <div>
+                                <strong>Flashcard Oturumu Bitir</strong>
+                                <small>Ödül: +15 XP</small>
+                            </div>
+                            <span class="quest-status" id="qStatus2">0 / 1</span>
+                        </div>
+                        <div class="quest-item" id="qCard3">
+                            <div>
+                                <strong>Karakter Çizim Testi Yap</strong>
+                                <small>Ödül: +5 XP</small>
+                            </div>
+                            <span class="quest-status" id="qStatus3">0 / 1</span>
+                        </div>
+                        <div class="quest-item" id="qCard4">
+                            <div>
+                                <strong>3 Farklı Kelimeyi Dinle</strong>
+                                <small>Ödül: +5 XP</small>
+                            </div>
+                            <span class="quest-status" id="qStatus4">0 / 3</span>
+                        </div>
+                    </div>
+
+                    <button class="claim-btn" id="btnClaimQuests" disabled onclick="claimDailyReward()">
+                        Hedefleri Tamamla (0/4)
+                    </button>
+                </div>
+
+                <div class="section-title">Kelime Sandıkları</div>
+                <div class="chest-grid">
+                    <div class="chest-card wood">
+                        <div class="chest-render-box">
+                            <svg class="chest-svg" viewBox="0 0 100 100">
+                                <rect x="18" y="42" width="64" height="42" rx="6" fill="#8d5b2d" stroke="#3e230b" stroke-width="4"/>
+                                <path d="M14 42 Q50 14 86 42 Z" fill="#b07236" stroke="#3e230b" stroke-width="4"/>
+                                <rect x="26" y="42" width="8" height="42" fill="#543110"/>
+                                <rect x="66" y="42" width="8" height="42" fill="#543110"/>
+                                <rect x="42" y="38" width="16" height="20" rx="3" fill="#ffd43b" stroke="#b48300" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <h4>HSK 1 Başlangıç Paketi</h4>
+                        <p>2 temel Çince kelime ve +20 XP.</p>
+                        <button class="buy-btn" onclick="openChest('wood', 1, 0)">1 Anahtar ile Aç</button>
+                    </div>
+
+                    <div class="chest-card silver">
+                        <div class="chest-render-box">
+                            <svg class="chest-svg" viewBox="0 0 100 100">
+                                <rect x="18" y="42" width="64" height="42" rx="6" fill="#94a3b8" stroke="#334155" stroke-width="4"/>
+                                <path d="M14 42 Q50 14 86 42 Z" fill="#cbd5e1" stroke="#334155" stroke-width="4"/>
+                                <rect x="26" y="42" width="8" height="42" fill="#475569"/>
+                                <rect x="66" y="42" width="8" height="42" fill="#475569"/>
+                                <rect x="42" y="38" width="16" height="20" rx="3" fill="#38bdf8" stroke="#0284c7" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <h4>Gümüş Kelime Paketi</h4>
+                        <p>3 yeni kelime + 5 Elmas + 30 XP.</p>
+                        <button class="buy-btn" onclick="openChest('silver', 2, 0)">2 Anahtar ile Aç</button>
+                    </div>
+
+                    <div class="chest-card magic">
+                        <div class="chest-render-box">
+                            <svg class="chest-svg" viewBox="0 0 100 100">
+                                <rect x="18" y="42" width="64" height="42" rx="6" fill="#4c1d95" stroke="#2e1065" stroke-width="4"/>
+                                <path d="M14 42 Q50 14 86 42 Z" fill="#7c3aed" stroke="#2e1065" stroke-width="4"/>
+                                <rect x="26" y="42" width="8" height="42" fill="#facc15"/>
+                                <rect x="66" y="42" width="8" height="42" fill="#facc15"/>
+                                <polygon points="50,34 59,48" fill="#c084fc" stroke="#f3e8ff" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <h4>Elit Kelime Paketi</h4>
+                        <p>4 seçkin kelime + 35 Elmas + 50 XP.</p>
+                        <button class="buy-btn gem-btn" onclick="openChest('magic', 0, 80)">80 Elmas ile Aç</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="screen-panel" id="screen-cards">
+            <div class="screen-content">
+                <div class="page-header-row">
+                    <h2>Koleksiyon & Ustalık</h2>
+                    <span id="deckTotalCardsCount" class="badge-accent">0 Kart</span>
+                </div>
+                <div class="info-banner">
+                    Flashcard pratiğinde doğru bildikçe kart ustalığı artar ve kelimeler seviye atlar.
+                </div>
+
+                <div class="deck-search-wrapper">
+                    <input type="text" id="deckSearchInput" class="deck-search-box" placeholder="🔍 Kartlarda ara (Hanzi, Pinyin, Türkçe)..." oninput="renderDeckCards()">
+                    <button type="button" id="clearDeckSearchBtn" class="deck-clear-btn" onclick="clearDeckSearch()" style="display:none;">✕</button>
+                </div>
+
+                <div class="deck-grid" id="deckGrid"></div>
+            </div>
+        </section>
+
+        <section class="screen-panel" id="screen-battle">
+            <div class="screen-content text-center">
+                <div class="arena-banner">
+                    <span class="arena-title" id="arenaTitle">Kademe 1: Başlangıç Vadisi</span>
+                    <span class="streak-badge-main" id="battleStreak">1 Günlük Seri</span>
+                </div>
+
+                <div class="hero-card">
+                    <div class="hero-desc">Öğrenilen kelimeleri aralıklı tekrar yöntemiyle pekiştirin.</div>
+
+                    <div class="cr-battle-row">
+                        <button type="button" class="cr-btn cr-btn-gold" onclick="openFlashcardModal('ALL')">
+                            <span class="cr-btn-icon">⚔️</span>
+                            <span class="cr-btn-text">KARIŞIK</span>
+                            <span class="cr-btn-sub">Tüm Kelimeler</span>
+                        </button>
+                        <button type="button" class="cr-btn cr-btn-blue" onclick="openFcCategoryPicker()">
+                            <span class="cr-btn-icon">📂</span>
+                            <span class="cr-btn-text">KATEGORİ</span>
+                            <span class="cr-btn-sub">Seç &amp; Savaş</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="discovery-daily-slot">
+                    <button id="btnDiscovery" class="gift-btn" onclick="openDiscoveryModal()">
+                        Günün 5 Yeni Kelimesi
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section class="screen-panel" id="screen-dictionary">
+            <div class="screen-content">
+                <h2>Sözlük</h2>
+
+                <div class="form-group">
+                    <input type="text" id="hanzi" placeholder="Hanzi (Örn: 你好)" oninput="queueAI('hanzi')" onkeydown="if(event.key==='Enter') triggerAI('hanzi')">
+                    <input type="text" id="pinyin" placeholder="Pinyin (Örn: nǐ hǎo)" oninput="queueAI('pinyin')" onkeydown="if(event.key==='Enter') triggerAI('pinyin')">
+                    <input type="text" id="turkish" placeholder="Türkçe Anlamı (Örn: merhaba)" oninput="queueAI('turkish')" onkeydown="if(event.key==='Enter') triggerAI('turkish')">
+
+                    <select id="wordCategory">
+                        <option value="Genel">Kategori: Genel</option>
+                    </select>
+
+                    <div id="aiStatus" class="ai-indicator" style="display:none;">Çeviri yapılıyor...</div>
+
+                    <div class="btn-row">
+                        <button id="btnSaveWord" type="button" class="action-btn" onclick="addWord()">Kelimeyi Ekle</button>
+                        <button id="btnClearForm" type="button" class="reset-btn" onclick="clearForm()">Temizle</button>
+                    </div>
+                </div>
+
+                <div class="category-box">
+                    <div class="cat-bar-header">
+                        <span class="cat-title">Kategoriler</span>
+                        <button class="link-btn" onclick="openManageCategoriesModal()">Kategorileri Düzenle</button>
+                    </div>
+                    <div class="cat-pills" id="categoryBar">
+                        <button class="cat-pill active" onclick="filterByCategory('')">Tümü</button>
+                        <button class="cat-pill add-pill" onclick="openNewCategoryModal()">+ Yeni</button>
+                    </div>
+                </div>
+
+                <div class="search-wrapper">
+                    <input type="text" id="searchQuery" class="search-box" placeholder="Sözlükte arama yapın..." oninput="handleSearch()">
+                    <div class="search-btns">
+                        <button id="clearBtn" class="clear-btn" onclick="clearSearch()">✕</button>
+                    </div>
+                </div>
+
+                <div class="alphabet-bar" id="alphabetBar">
+                    <button class="alpha-btn active" onclick="filterByLetter('')">Tümü</button>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Pinyin</th>
+                            <th>Hanzi</th>
+                            <th>Türkçe</th>
+                            <th>İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="wordList">
+                        <tr><td colspan="4" style="text-align:center; color:#888;">Giriş bekleniyor...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="screen-panel" id="screen-profile">
+            <div class="screen-content text-center">
+                <h2>Profil & Ayarlar</h2>
+
+                <div class="cr-card profile-card">
+                    <div class="id-display-box" onclick="copyUserId()" title="Kopyalamak için dokunun" style="cursor:pointer;">
+                        <span class="id-label">Kullanıcı Kimliği:</span>
+                        <span id="profileDisplayUserId" class="id-code">#---</span>
+                        <span style="font-size:11px; color:#64748b;">📋</span>
+                    </div>
+
+                    <div id="profileRankTitle" class="profile-rank">Başlangıç Seviyesi</div>
+                    <p id="profileXPDetails" class="profile-xp">Toplam Puan: 0 XP</p>
+                    <div class="progress-track" style="margin:16px 0;">
+                        <div class="progress-fill" id="rankProgressFill" style="width: 5%;"></div>
+                    </div>
+                </div>
+
+                <div class="cr-card settings-card">
+                    <div class="card-subtitle" style="text-align:left;">👥 Arkadaşlarım & Rekabet</div>
+                    <div style="display:flex; gap:8px;">
+                        <input type="text" id="friendIdInput" placeholder="Arkadaş ID (Örn: #A1B2C3D4E)" style="text-transform:uppercase;">
+                        <button type="button" class="action-btn" style="flex:0 0 auto; padding:0 16px;" onclick="addFriendById()">Ekle</button>
+                    </div>
+                    <div id="friendsListArea" style="display:flex; flex-direction:column; gap:8px; margin-top:4px; text-align:left;">
+                        <div style="font-size:12px; color:#94a3b8; text-align:center; padding:8px;">Henüz arkadaş eklenmedi.</div>
+                    </div>
+                </div>
+
+                <div class="cr-card settings-card">
+                    <div class="card-subtitle" style="margin-bottom:4px; text-align:left;">Uygulama & Ses Ayarları</div>
+
+                    <div class="settings-row">
+                        <span>🎵 Arka Plan Müziği</span>
+                        <button onclick="toggleBGM()" id="bgmToggleBtn" class="setting-toggle-btn">
+                            Kapalı
+                        </button>
+                    </div>
+
+                    <div class="settings-slider-row">
+                        <div class="slider-header">
+                            <span>🔊 Müzik Ses Düzeyi</span>
+                            <span id="bgmVolumeDisplay" class="slider-val">30%</span>
+                        </div>
+                        <input type="range" id="bgmVolumeSlider" min="0" max="100" value="30" oninput="changeBgmVolume(this.value)" class="volume-slider">
+                    </div>
+
+                    <div class="settings-slider-row">
+                        <div class="slider-header">
+                            <span>🗣️ Kelime Ses Düzeyi</span>
+                            <span id="ttsVolumeDisplay" class="slider-val">100%</span>
+                        </div>
+                        <input type="range" id="ttsVolumeSlider" min="0" max="100" value="100" oninput="changeTtsVolume(this.value)" class="volume-slider">
+                    </div>
+
+                    <div class="settings-speed-box">
+                        <span class="speed-label">⚡ Okuma Hızı</span>
+                        <div class="speed-btn-group">
+                            <button onclick="changeSpeed(0.5, this)" class="speed-btn">0.5x</button>
+                            <button onclick="changeSpeed(1.0, this)" class="speed-btn active">1.0x</button>
+                            <button onclick="changeSpeed(1.25, this)" class="speed-btn">1.25x</button>
+                            <button onclick="changeSpeed(1.5, this)" class="speed-btn">1.5x</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="auth-box-cr">
+                    <div id="loggedOutView">
+                        <p class="auth-desc">Verilerinizin buluta kaydedilmesi ve başlangıç paketiniz için giriş yapın:</p>
+                        <button id="btnGoogleAuth" type="button" class="google-btn" onclick="handleGoogleLogin()">
+                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="Google"> Google ile Giriş Yap
+                        </button>
+                    </div>
+                    <div id="loggedInView" style="display:none; justify-content:space-between; align-items:center;">
+                        <span id="userNameFull" class="user-fullname">Giriş Yapıldı</span>
+                        <button id="btnLogout" type="button" class="logout-btn" onclick="handleLogout()">Çıkış</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <nav class="bottom-nav">
+        <button class="nav-item" onclick="goToScreen(0)"><span class="nav-label">Mağaza</span></button>
+        <button class="nav-item" onclick="goToScreen(1)"><span class="nav-label">Koleksiyon</span></button>
+        <button class="nav-item active" onclick="goToScreen(2)"><span class="nav-label">Pratik</span></button>
+        <button class="nav-item" onclick="goToScreen(3)"><span class="nav-label">Sözlük</span></button>
+        <button class="nav-item" onclick="goToScreen(4)"><span class="nav-label">Profil</span></button>
+    </nav>
+</div>
+
+<div id="welcomeSparkModal" class="modal-overlay">
+    <div class="modal-card chest-open-card" onclick="event.stopPropagation()">
+        <h3 class="modal-heading">Platforma Hoş Geldiniz</h3>
+        <p class="modal-text">Çince yolculuğunuza güçlü başlamanız için hesabınıza <strong>5 Gümüş Paket (5 Anahtar)</strong> ve <strong>50 Elmas</strong> tanımlandı.</p>
+        <button class="action-btn" style="width:100%; margin-top:20px;" onclick="closeWelcomeSparkModal()">Paketleri Açmaya Başla</button>
     </div>
+</div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Pinyin</th>
-                <th>Hanzi</th>
-                <th>Türkçe Anlamı</th>
-            </tr>
-        </thead>
-        <tbody id="sozlukTablosu"></tbody>
-    </table>
+<div id="chestModal" class="modal-overlay" onclick="closeChestModal(event)">
+    <div class="modal-card chest-open-card" onclick="event.stopPropagation()">
+        <div id="chestBoxAnim" class="chest-anim-box"></div>
+        <h3 id="chestModalTitle" class="modal-heading">Paket Açılıyor</h3>
+        <div id="chestDropArea" class="chest-drop-area"></div>
+        <button class="action-btn" id="btnCollectChest" style="display:none; width:100%; margin-top:16px;" onclick="closeChestModal()">Kelimeyi Al</button>
+    </div>
+</div>
 
-    <script>
-        let sozluk = [
-            { hanzi: "你好", pinyin: "Nǐ hǎo", turkce: "Merhaba" },
-            { hanzi: "谢谢", pinyin: "Xièxie", turkce: "Teşekkürler" }
-        ];
+<div id="wordModal" class="modal-overlay" onclick="closeModal(event)">
+    <div class="modal-card word-detail-card" onclick="event.stopPropagation()">
+        <button class="modal-close" onclick="closeModal()">✕</button>
+        <div id="hanziTarget" class="hanzi-container"></div>
+        <div class="word-info-header">
+            <div id="modalPinyin" class="modal-pinyin"></div>
+            <div id="modalTurkish" class="modal-turkish-tag"></div>
+        </div>
+        <div class="action-btn-group">
+            <button id="modalAudioBtn" class="action-btn-pill">🔊 Kelimeyi Dinle</button>
+            <button class="action-btn-pill outline" onclick="replayAnimation()">↺ Çizimi Göster</button>
+            <button class="action-btn-pill accent" onclick="startQuiz()">✍️ Çizim Testi</button>
+        </div>
+        <div id="exampleBox" class="ex-box-card">
+            <div class="ex-box-top">
+                <span class="ex-badge">Örnek Cümle</span>
+                <button id="btnSpeakSentence" class="ex-listen-btn" style="display:none;" onclick="speakExampleSentence()">🔊 Dinle</button>
+            </div>
+            <div id="exChinese" class="ex-ch">Yükleniyor...</div>
+            <div id="exPinyin" class="ex-pin"></div>
+            <div id="exTurkish" class="ex-tr"></div>
+        </div>
+    </div>
+</div>
 
-        function listeyiGuncelle() {
-            // Pinyin'e göre alfabetik sırala
-            sozluk.sort((a, b) => a.pinyin.localeCompare(b.pinyin, 'en', { sensitivity: 'base' }));
+<div id="discoveryModal" class="modal-overlay" onclick="closeDiscoveryModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+        <button class="modal-close" onclick="closeDiscoveryModal()">✕</button>
+        <h3 class="modal-heading">Günün 5 Yeni Kelimesi</h3>
+        <div id="discoveryListArea" class="discovery-list"></div>
+        <div class="batch-add-box">
+            <div class="small-label">Eklenecek Kategori:</div>
+            <div style="display:flex; gap:8px;">
+                <select id="discoveryBatchCatSelect" style="flex:1;"></select>
+                <button class="action-btn" style="flex:1;" onclick="addAllDiscoveryWords()">Koleksiyona Ekle</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-            let tbody = document.getElementById("sozlukTablosu");
-            tbody.innerHTML = "";
+<div id="fcCategoryModal" class="modal-overlay" onclick="if(event.target===this) closeFcCategoryPicker()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+        <button class="modal-close" onclick="closeFcCategoryPicker()">✕</button>
+        <h3 class="modal-heading">🎯 Kategori Seç &amp; Savaş</h3>
+        <div id="fcCategoryListArea" style="display:flex; flex-direction:column; gap:8px; max-height:320px; overflow-y:auto; margin-top:12px;"></div>
+    </div>
+</div>
 
-            sozluk.forEach(item => {
-                let tr = `<tr>
-                    <td><b>${item.pinyin}</b></td>
-                    <td>${item.hanzi}</td>
-                    <td>${item.turkce}</td>
-                </tr>`;
-                tbody.innerHTML += tr;
-            });
-        }
+<div id="flashcardModal" class="modal-overlay" onclick="closeFlashcardModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+        <button class="modal-close" onclick="closeFlashcardModal()">✕</button>
+        <h3 id="fcModalTitle" class="modal-heading">Flashcard Pratiği</h3>
+        <div class="fc-meta-row">
+            <span id="fcCounter">1 / 20</span>
+            <span id="fcMemoryStatus"></span>
+        </div>
+        <div class="fc-card" onclick="flipCard()">
+            <div id="fcFront">
+                <div id="fcFrontHanzi" class="fc-hanzi-text"></div>
+                <div id="fcFrontPinyin" class="fc-pinyin-text"></div>
+                <div class="fc-hint">Çeviri için dokunun</div>
+            </div>
+            <div id="fcBack" style="display:none;">
+                <div class="fc-hint">Türkçe Anlamı:</div>
+                <div id="fcBackTurkish" class="fc-turkish-text"></div>
+                <button class="row-btn outline-btn" style="margin-top:16px;" onclick="event.stopPropagation(); speakFlashcard();">Dinle</button>
+            </div>
+        </div>
+        <div class="fc-actions-row">
+            <button class="row-btn btn-wrong" onclick="handleFlashcardAnswer(false)">Tekrar Et</button>
+            <button class="action-btn btn-correct" onclick="handleFlashcardAnswer(true)">Biliyorum (+5 XP)</button>
+        </div>
+    </div>
+</div>
 
-        function kelimeEkle() {
-            let hanzi = document.getElementById("hanzi").value.trim();
-            let pinyin = document.getElementById("pinyin").value.trim();
-            let turkce = document.getElementById("turkce").value.trim();
+<div id="newCategoryModal" class="modal-overlay" onclick="closeNewCategoryModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+        <button class="modal-close" onclick="closeNewCategoryModal()">✕</button>
+        <h3 class="modal-heading">Yeni Kategori</h3>
+        <input type="text" id="newCatNameInput" placeholder="Kategori Adı">
+        <div class="color-palette-bar" id="newCatPalette"></div>
+        <div class="color-select-row">
+            <span>Özel Renk:</span>
+            <input type="color" id="newCatColorPicker" value="#2563eb">
+        </div>
+        <button class="action-btn" style="width:100%; margin-top:14px;" onclick="saveNewCategory()">Kaydet</button>
+    </div>
+</div>
 
-            if (!hanzi || !pinyin || !turkce) {
-                alert("Lütfen tüm alanları doldurun!");
-                return;
-            }
+<div id="manageCategoriesModal" class="modal-overlay" onclick="closeManageCategoriesModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+        <button class="modal-close" onclick="closeManageCategoriesModal()">✕</button>
+        <h3 class="modal-heading">Kategoriler</h3>
+        <div id="categoryEditListArea" class="category-edit-list"></div>
+        <button class="action-btn" style="width:100%; margin-top:14px;" onclick="closeManageCategoriesModal()">Kapat</button>
+    </div>
+</div>
 
-            sozluk.push({ hanzi, pinyin, turkce });
-            
-            document.getElementById("hanzi").value = "";
-            document.getElementById("pinyin").value = "";
-            document.getElementById("turkce").value = "";
+<div id="moveModal" class="modal-overlay" onclick="closeMoveModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+        <button class="modal-close" onclick="closeMoveModal()">✕</button>
+        <h3 class="modal-heading">Kategori Değiştir</h3>
+        <p id="moveWordTitle" class="move-word-name"></p>
+        <select id="targetCategorySelect" style="margin:14px 0;"></select>
+        <button class="action-btn" style="width:100%;" onclick="confirmMoveWord()">Kaydet</button>
+    </div>
+</div>
 
-            listeyiGuncelle();
-        }
-
-        // Sayfa açıldığında ilk listeyi bas
-        listeyiGuncelle();
-    </script>
+<script src="app.js"></script>
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js').catch(err => console.warn('SW hatası:', err));
+        });
+    }
+</script>
 </body>
 </html>
