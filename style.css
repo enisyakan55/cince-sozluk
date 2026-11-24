@@ -1317,3 +1317,52 @@ td:last-child { border-right: 2px solid var(--border-light); border-radius: 0 12
     border-radius: 14px;
     font-weight: 900;
 }
+
+/* 24 RENKLİK KATEGORİ PALETİ */
+.color-palette-bar {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 8px;
+    margin: 12px 0;
+}
+
+.color-swatch {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    cursor: pointer;
+    transition: transform 0.15s, border-color 0.15s;
+}
+
+.color-swatch:hover {
+    transform: scale(1.12);
+}
+
+.color-swatch.selected {
+    border-color: #1e293b;
+    transform: scale(1.15);
+    box-shadow: 0 0 0 2px #ffffff inset;
+}
+
+.mini-palette {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 5px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed #cbd5e1;
+}
+
+.mini-swatch {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+}
+
+.mini-swatch.selected {
+    border-color: #1e293b;
+    transform: scale(1.15);
+}

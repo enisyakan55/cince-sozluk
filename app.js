@@ -253,8 +253,12 @@ const HSK_POOL = [
     { hanzi: "着", pinyin: "zhe", turkish: "devam eden durum eki (-erek/-arak)" }
 ];
 
-const PRESET_COLORS = ["#1971c2", "#2f9e44", "#e03131", "#f08c00", "#9c36b5", "#0ca678", "#1098ad", "#d6336c", "#495057", "#7048e8"];
-
+const PRESET_COLORS = [
+    "#ef4444", "#dc2626", "#f97316", "#f59e0b", "#eab308", "#84cc16",
+    "#22c55e", "#10b981", "#14b8a6", "#06b6d4", "#0ea5e9", "#3b82f6",
+    "#2563eb", "#4f46e5", "#6366f1", "#8b5cf6", "#a855f7", "#d946ef",
+    "#ec4899", "#f43f5e", "#78716c", "#64748b", "#334155", "#1e293b"
+];
 // FIREBASE YAPILANDIRMASI
 const firebaseConfig = {
     apiKey: "AIzaSyCwezLhpEGqWSHgpfBqBax8pnRUu9SdExg",
@@ -1350,9 +1354,23 @@ function renderCategoryBar() {
     bar.appendChild(allBtn);
 
     categories.forEach(cat => {
+        const color = getCategoryColor(cat);
+        const isActive = selectedCategory === cat;
         const btn = document.createElement('button');
-        btn.className = `cat-pill ${selectedCategory === cat ? 'active' : ''}`;
-        btn.innerText = cat;
+        btn.className = `cat-pill ${isActive ? 'active' : ''}`;
+        btn.style.display = 'inline-flex';
+        btn.style.alignItems = 'center';
+        btn.style.gap = '6px';
+
+        if (isActive) {
+            btn.style.background = color;
+            btn.style.borderColor = color;
+            btn.style.borderBottomColor = '#1e293b';
+            btn.style.color = '#ffffff';
+        }
+
+        const dotColor = isActive ? '#ffffff' : color;
+        btn.innerHTML = `<span style="width:9px; height:9px; border-radius:50%; background:${dotColor}; display:inline-block;"></span>${cat}`;
         btn.onclick = () => filterByCategory(cat);
         bar.appendChild(btn);
     });
@@ -1362,8 +1380,7 @@ function renderCategoryBar() {
     newBtn.innerText = '+ Yeni';
     newBtn.onclick = openNewCategoryModal;
     bar.appendChild(newBtn);
-}
-
+}    
 function updateCategoryDropdowns() {
     const formSelect = document.getElementById('wordCategory');
     const moveSelect = document.getElementById('targetCategorySelect');
@@ -1389,9 +1406,26 @@ function filterByCategory(cat) {
 
 function openNewCategoryModal() {
     const nameInput = document.getElementById('newCatNameInput');
+    const picker = document.getElementById('newCatColorPicker');
+    const palette = document.getElementById('newCatPalette');
     if (nameInput) nameInput.value = '';
+
+    if (palette && picker) {
+        palette.innerHTML = '';
+        PRESET_COLORS.forEach(c => {
+            const dot = document.createElement('div');
+            dot.className = `color-swatch ${picker.value.toLowerCase() === c.toLowerCase() ? 'selected' : ''}`;
+            dot.style.background = c;
+            dot.onclick = () => {
+                picker.value = c;
+                palette.querySelectorAll('.color-swatch').forEach(el => el.classList.remove('selected'));
+                dot.classList.add('selected');
+            };
+            palette.appendChild(dot);
+        });
+    }
     document.getElementById('newCategoryModal').style.display = 'flex';
-}
+}    
 function closeNewCategoryModal() { document.getElementById('newCategoryModal').style.display = 'none'; }
 
 function saveNewCategory() {
@@ -1417,34 +1451,46 @@ function openManageCategoriesModal() {
     categories.forEach(cat => {
         const currentColor = getCategoryColor(cat);
         const safeId = encodeURIComponent(cat);
+        const escapedCat = cat.replace(/'/g, "\\'");
+
         const row = document.createElement('div');
-        row.style = "display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:2px solid #e2e8f0; padding:10px 12px; border-radius:12px; margin-bottom:8px; gap:8px;";
+        row.style = "background:#f8fafc; border:2px solid #e2e8f0; padding:10px 12px; border-radius:12px; margin-bottom:10px;";
 
         const deleteBtnHtml = cat !== 'Genel'
-            ? `<button class="row-btn" style="background:#fee2e2; color:#ef4444; padding:6px 10px;" onclick="deleteCategory('${cat.replace(/'/g, "\\'")}')">🗑️</button>`
+            ? `<button class="row-btn" style="background:#fee2e2; color:#ef4444; padding:6px 10px;" onclick="deleteCategory('${escapedCat}')">🗑️</button>`
             : `<span style="font-size:11px; color:#94a3b8; font-weight:700; padding:0 4px;">Sabit</span>`;
 
+        const swatchesHtml = PRESET_COLORS.map(c => `
+            <div class="mini-swatch ${currentColor.toLowerCase() === c.toLowerCase() ? 'selected' : ''}"
+                 style="background:${c};"
+                 onclick="updateCategoryColor('${escapedCat}', '${c}')"></div>
+        `).join('');
+
         row.innerHTML = `
-            <div style="display:flex; align-items:center; gap:8px; font-weight:800; color:#1e293b; overflow:hidden;">
-                <span style="width:12px; height:12px; border-radius:50%; background:${currentColor}; flex-shrink:0; display:inline-block;"></span>
-                <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${cat}</span>
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                <div style="display:flex; align-items:center; gap:8px; font-weight:800; color:#1e293b; overflow:hidden;">
+                    <span style="width:12px; height:12px; border-radius:50%; background:${currentColor}; flex-shrink:0; display:inline-block;"></span>
+                    <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${cat}</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+                    <input type="color" id="editColor_${safeId}" value="${currentColor}" style="width:30px; height:28px; border:none; cursor:pointer; background:none; padding:0;">
+                    <button class="row-btn" style="background:#dcfce7; color:#15803d; padding:6px 10px;" onclick="updateCategoryColor('${escapedCat}')">Kaydet</button>
+                    ${deleteBtnHtml}
+                </div>
             </div>
-            <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
-                <input type="color" id="editColor_${safeId}" value="${currentColor}" style="width:32px; height:30px; border:none; cursor:pointer; background:none; padding:0;">
-                <button class="row-btn" style="background:#dcfce7; color:#15803d; padding:6px 10px;" onclick="updateCategoryColor('${cat.replace(/'/g, "\\'")}')">Kaydet</button>
-                ${deleteBtnHtml}
-            </div>
+            <div class="mini-palette">${swatchesHtml}</div>
         `;
         listArea.appendChild(row);
     });
     document.getElementById('manageCategoriesModal').style.display = 'flex';
 }
 
-function updateCategoryColor(catName) {
+function updateCategoryColor(catName, directColor = null) {
     const safeId = encodeURIComponent(catName);
     const picker = document.getElementById(`editColor_${safeId}`);
-    if (!picker) return;
-    const newColor = picker.value;
+    const newColor = directColor || picker?.value;
+    if (!newColor) return;
+
     categoryColors[catName] = newColor;
 
     if (catName === "Genel") {
@@ -1469,7 +1515,7 @@ function updateCategoryColor(catName) {
             });
     }
 }
-
+    
 async function deleteCategory(catName) {
     if (!currentUser || catName === "Genel") return;
     if (!confirm(`"${catName}" kategorisini silmek istediğine emin misin?\n(İçindeki kelimeler silinmez, otomatik olarak "Genel" kategorisine taşınır.)`)) return;
